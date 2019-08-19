@@ -1,21 +1,17 @@
-"""CPU functionality."""
-
 import sys
 
+# Main CPU class
 class CPU:
-    """Main CPU class."""
-
+    # Construct a new CPU
     def __init__(self):
-        """Construct a new CPU."""
-        pass
+        self.ram = [0] * 256
 
+
+    # Load a program into memory
     def load(self):
-        """Load a program into memory."""
-
         address = 0
 
         # For now, we've just hardcoded a program:
-
         program = [
             # From print8.ls8
             0b10000010, # LDI R0,8
@@ -31,21 +27,28 @@ class CPU:
             address += 1
 
 
-    def alu(self, op, reg_a, reg_b):
-        """ALU operations."""
+    # Read RAM at given address and return that value
+    def ram_read(self, mar):
+        return self.ram[mar]
 
+
+    # Write a value at given address
+    def ram_write(self, mar, mdr):
+        self.ram[mar] = mdr
+
+
+    # ALU operations
+    def alu(self, op, reg_a, reg_b):
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
         #elif op == "SUB": etc
         else:
             raise Exception("Unsupported ALU operation")
 
-    def trace(self):
-        """
-        Handy function to print out the CPU state. You might want to call this
-        from run() if you need help debugging.
-        """
 
+    # Handy function to print out the CPU state. 
+    # You might want to call this from run() if you need help debugging.
+    def trace(self):
         print(f"TRACE: %02X | %02X %02X %02X |" % (
             self.pc,
             #self.fl,
@@ -60,6 +63,7 @@ class CPU:
 
         print()
 
+
+    # Run the CPU
     def run(self):
-        """Run the CPU."""
         pass
