@@ -32,8 +32,16 @@
 - [ ] Implement the CALL and RET instructions
 - [ ] Implement Subroutine Calls and be able to run the `call.ls8` program
 
+### Day 5: Sprint Challenge, get `sctest.ls8` working
+
+- [ ] Add the `CMP` instruction and `equal` flag to your LS-8.
+- [ ] Add the `JMP` instruction.
+- [ ] Add the `JEQ` and `JNE` instructions.
+
 ### Stretch
 
-- [ ] Add the timer interrupt to the LS-8 emulator
-- [ ] Add the keyboard interrupt to the LS-8 emulator
+- [ ] Add the ALU operations: `AND` `OR` `XOR` `NOT` `SHL` `SHR` `MOD`
+- [ ] Add an `ADDI` extension instruction to add an immediate value to a register
+- [ ] Add timer interrupts
+- [ ] Add keyboard interrupts
 - [ ] Write an LS-8 assembly program to draw a curved histogram on the screen

@@ -1,5 +1,14 @@
 import sys
 
+
+HLT = 0b00000001
+PRN = 0b01000111
+LDI = 0b10000010
+MUL = 0b10100010
+PUSH = 0b01000101
+POP = 0b01000110
+
+
 # Main CPU class
 class CPU:
     # Construct a new CPU
@@ -7,6 +16,12 @@ class CPU:
         self.ram = [0] * 256
         self.reg = [0] * 8
         self.pc = 0
+
+        self.dispatchtable = {
+            PRN: self.prn,
+            LDI: self.ldi,
+            MUL: self.mul
+        }
 
 
     # Load a program into memory
@@ -21,7 +36,6 @@ class CPU:
                     instruction = line.split(' ')[0]
                     self.ram[address] = int(instruction, 2)
                     address += 1
-        
 
 
     # Read RAM at given address and return that value
@@ -62,34 +76,39 @@ class CPU:
         print()
 
 
+    # Handle PRN instruction
+    def prn(self, reg_a, reg_b):
+        reg_a = self.ram_read(self.pc + 1)
+        print(self.reg[reg_a])
+        self.pc += 2
+
+
+    # Handle LDI
+    def ldi(self, reg_a, reg_b):
+        reg_a = self.ram_read(self.pc + 1)
+        reg_b = self.ram_read(self.pc + 2)
+        self.reg[reg_a] = reg_b
+        self.pc += 3 
+
+
+    # Handle MUL
+    def mul(self, reg_a, reg_b):
+        reg_a = self.ram_read(self.pc + 1)
+        reg_b = self.ram_read(self.pc + 2)
+        self.alu("MUL", reg_a, reg_b)
+        self.pc += 3
+
+
     # Run the CPU
     def run(self):
-        LDI = 0b10000010
-        PRN = 0b01000111
-        HLT = 0b00000001
-        MUL = 0b10100010
-
         running = True
 
         while running:
             ir = self.ram_read(self.pc)
+            reg_a = self.ram_read(self.pc + 1)
+            reg_b = self.ram_read(self.pc + 2)
 
             if ir == HLT:
                 running = False
-
-            if ir == PRN:
-                reg = self.ram_read(self.pc + 1)
-                print(self.reg[reg])
-                self.pc += 2
-
-            if ir == LDI:
-                reg_a = self.ram_read(self.pc + 1)
-                reg_b = self.ram_read(self.pc + 2)
-                self.reg[reg_a] = reg_b
-                self.pc += 3  
-
-            if ir == MUL:
-                reg_a = self.ram_read(self.pc + 1)
-                reg_b = self.ram_read(self.pc + 2)
-                self.alu("MUL", reg_a, reg_b)
-                self.pc += 3
+            else:
+                self.dispatchtable[ir](reg_a, reg_b)
