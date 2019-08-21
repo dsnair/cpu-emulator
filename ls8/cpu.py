@@ -16,11 +16,14 @@ class CPU:
         self.ram = [0] * 256
         self.reg = [0] * 8
         self.pc = 0
+        self.sp = 7  # stack pointer is always register 7
 
         self.dispatchtable = {
             PRN: self.prn,
             LDI: self.ldi,
-            MUL: self.mul
+            MUL: self.mul,
+            PUSH: self.push,
+            POP: self.pop
         }
 
 
@@ -78,25 +81,34 @@ class CPU:
 
     # Handle PRN instruction
     def prn(self, reg_a, reg_b):
-        reg_a = self.ram_read(self.pc + 1)
         print(self.reg[reg_a])
         self.pc += 2
 
 
     # Handle LDI
     def ldi(self, reg_a, reg_b):
-        reg_a = self.ram_read(self.pc + 1)
-        reg_b = self.ram_read(self.pc + 2)
         self.reg[reg_a] = reg_b
         self.pc += 3 
 
 
     # Handle MUL
     def mul(self, reg_a, reg_b):
-        reg_a = self.ram_read(self.pc + 1)
-        reg_b = self.ram_read(self.pc + 2)
         self.alu("MUL", reg_a, reg_b)
         self.pc += 3
+
+    
+    # Handle PUSH
+    def push(self, reg_a, reg_b):
+        self.sp -= 1
+        self.ram_write(self.sp, self.reg[reg_a])
+        self.pc += 2
+
+
+    # Handle POP
+    def pop(self, reg_a, reg_b):
+        self.reg[reg_a] = self.ram_read(self.sp)
+        self.sp += 1
+        self.pc += 2
 
 
     # Run the CPU
