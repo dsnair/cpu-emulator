@@ -4,9 +4,13 @@ import sys
 HLT = 0b00000001
 PRN = 0b01000111
 LDI = 0b10000010
-MUL = 0b10100010
 PUSH = 0b01000101
 POP = 0b01000110
+CALL = 0b01010000
+RET = 0b00010001
+
+MUL = 0b10100010
+ADD = 0b10100000
 
 
 # Main CPU class
@@ -19,11 +23,14 @@ class CPU:
         self.sp = 7  # stack pointer is always register 7
 
         self.dispatchtable = {
+            MUL: self.mul,
+            ADD: self.add,
             PRN: self.prn,
             LDI: self.ldi,
-            MUL: self.mul,
             PUSH: self.push,
-            POP: self.pop
+            POP: self.pop,
+            CALL: self.call,
+            RET: self.ret
         }
 
 
@@ -79,6 +86,18 @@ class CPU:
         print()
 
 
+    # Handle MUL
+    def mul(self, reg_a, reg_b):
+        self.alu("MUL", reg_a, reg_b)
+        self.pc += 3
+
+
+    # Handle ADD
+    def add(self, reg_a, reg_b):
+        self.alu("ADD", reg_a, reg_b)
+        self.pc += 3
+
+    
     # Handle PRN instruction
     def prn(self, reg_a, reg_b):
         print(self.reg[reg_a])
@@ -88,12 +107,6 @@ class CPU:
     # Handle LDI
     def ldi(self, reg_a, reg_b):
         self.reg[reg_a] = reg_b
-        self.pc += 3 
-
-
-    # Handle MUL
-    def mul(self, reg_a, reg_b):
-        self.alu("MUL", reg_a, reg_b)
         self.pc += 3
 
     
@@ -109,6 +122,19 @@ class CPU:
         self.reg[reg_a] = self.ram_read(self.sp)
         self.sp += 1
         self.pc += 2
+
+    
+    # Handle CALL
+    def call(self, reg_a, reg_b):
+        self.sp -= 1
+        self.ram_write(self.sp, self.pc + 2)
+        self.pc = self.reg[reg_a]
+
+
+    # Handle RET
+    def ret(self, reg_a, reg_b):
+        self.pc = self.ram_read(self.sp)
+        self.sp += 1
 
 
     # Run the CPU
