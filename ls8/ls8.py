@@ -5,5 +5,8 @@ from cpu import *
 
 cpu = CPU()
 
-cpu.load()
-cpu.run()
+try:
+    cpu.load(sys.argv[1])
+    cpu.run()
+except IndexError:
+    print("Please provide a file name.")

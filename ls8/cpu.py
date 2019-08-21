@@ -10,23 +10,18 @@ class CPU:
 
 
     # Load a program into memory
-    def load(self):
+    def load(self, file_name):
         address = 0
-
-        # For now, we've just hardcoded a program:
-        program = [
-            # From print8.ls8
-            0b10000010, # LDI R0,8
-            0b00000000,
-            0b00001000,
-            0b01000111, # PRN R0
-            0b00000000,
-            0b00000001, # HLT
-        ]
-
-        for instruction in program:
-            self.ram[address] = instruction
-            address += 1
+        
+        with open(file_name, 'r') as f:
+            for line in f:
+                if line.startswith('#') or line.startswith('\n'):
+                    continue
+                else:
+                    instruction = line.split(' ')[0]
+                    self.ram[address] = int(instruction, 2)
+                    address += 1
+        
 
 
     # Read RAM at given address and return that value
@@ -76,8 +71,6 @@ class CPU:
 
         while running:
             ir = self.ram_read(self.pc)
-
-            # print("IR: {}, HLT: {}, PRN: {}, LDI: {}, opA: {}, opB: {}".format(ir, HLT, PRN, LDI,self.ram_read(self.pc+1), self.ram_read(self.pc+2)))
 
             if ir == HLT:
                 running = False
