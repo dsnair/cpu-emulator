@@ -6,11 +6,18 @@ PRN = 0b01000111
 LDI = 0b10000010
 PUSH = 0b01000101
 POP = 0b01000110
+
+# PC
 CALL = 0b01010000
 RET = 0b00010001
+JMP = 0b01010100
+JEQ = 0b01010101
+JNE = 0b01010110
 
+# ALU
 MUL = 0b10100010
 ADD = 0b10100000
+CMP = 0b10100111
 
 
 # Main CPU class
@@ -21,16 +28,21 @@ class CPU:
         self.reg = [0] * 8
         self.pc = 0
         self.sp = 7  # stack pointer is always register 7
+        self.fl = 0
 
         self.dispatchtable = {
             MUL: self.mul,
             ADD: self.add,
+            CMP: self.cmp,
             PRN: self.prn,
             LDI: self.ldi,
             PUSH: self.push,
             POP: self.pop,
             CALL: self.call,
-            RET: self.ret
+            RET: self.ret,
+            JMP: self.jmp,
+            JEQ: self.jeq,
+            JNE: self.jne
         }
 
 
@@ -47,28 +59,24 @@ class CPU:
                     self.ram[address] = int(instruction, 2)
                     address += 1
 
-
     # Read RAM at given address and return that value
     def ram_read(self, mar):
         return self.ram[mar]
-
 
     # Write a value at given address
     def ram_write(self, mar, mdr):
         self.ram[mar] = mdr
 
-
     # ALU operations
     def alu(self, op, reg_a, reg_b):
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
-        
         elif op == "MUL":
             self.reg[reg_a] *= self.reg[reg_b]
-
+        elif op == "CMP":
+            self.fl = 1 if self.reg[reg_a] == self.reg[reg_b] else 0
         else:
             raise Exception("Unsupported ALU operation")
-
 
     # Handy function to print out the CPU state. 
     # You might want to call this from run() if you need help debugging.
@@ -85,57 +93,60 @@ class CPU:
 
         print()
 
-
-    # Handle MUL
     def mul(self, reg_a, reg_b):
         self.alu("MUL", reg_a, reg_b)
         self.pc += 3
 
-
-    # Handle ADD
     def add(self, reg_a, reg_b):
         self.alu("ADD", reg_a, reg_b)
         self.pc += 3
 
-    
-    # Handle PRN instruction
+    # Handle CMP with Equal flag
+    def cmp(self, reg_a, reg_b):
+        self.alu("CMP", reg_a, reg_b)
+        self.pc += 3
+
     def prn(self, reg_a, reg_b):
         print(self.reg[reg_a])
         self.pc += 2
 
-
-    # Handle LDI
     def ldi(self, reg_a, reg_b):
         self.reg[reg_a] = reg_b
         self.pc += 3
 
-    
-    # Handle PUSH
     def push(self, reg_a, reg_b):
         self.sp -= 1
         self.ram_write(self.sp, self.reg[reg_a])
         self.pc += 2
 
-
-    # Handle POP
     def pop(self, reg_a, reg_b):
         self.reg[reg_a] = self.ram_read(self.sp)
         self.sp += 1
         self.pc += 2
 
-    
-    # Handle CALL
     def call(self, reg_a, reg_b):
         self.sp -= 1
         self.ram_write(self.sp, self.pc + 2)
         self.pc = self.reg[reg_a]
 
-
-    # Handle RET
     def ret(self, reg_a, reg_b):
         self.pc = self.ram_read(self.sp)
         self.sp += 1
 
+    def jmp(self, reg_a, reg_b):
+        self.pc = self.reg[reg_a]
+
+    def jeq(self, reg_a, reg_b):
+        if self.fl:
+            self.jmp(reg_a, reg_b)
+        else:
+            self.pc += 2
+            
+    def jne(self, reg_a, reg_b):
+        if not self.fl:
+            self.jmp(reg_a, reg_b)
+        else:
+            self.pc += 2
 
     # Run the CPU
     def run(self):

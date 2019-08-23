@@ -229,7 +229,7 @@ Extend your LS8 emulator to support the following program:
 00000001 # HLT
 ```
 
-One you run it with `python3 ls8.py examples/mult.ls8`, you should see:
+When you run it with `python3 ls8.py examples/mult.ls8`, you should see:
 
 ```
 72
@@ -302,7 +302,7 @@ Implement a system stack per the spec. Add `PUSH` and `POP` instructions. Read
   - Use the stack pointer to modify the correct block of memory. 
   - Make sure you update the stack pointer appropriately as you `PUSH` and `POP` items to and from the stack.
 
-If you run `python3 ls8.py examples/stack.ls8` you should see the output:
+If you run `python3 ls8.py examples/stack.ls8`, you should see the output:
 
 ```
 2
@@ -340,13 +340,23 @@ and `RET`.
     you explicitly set per-instruction... but can also be computed from the
     value in `IR`. Check out the spec for more.
 
-If you run `python3 ls8.py examples/call.ls8` you should see the output:
+If you run `python3 ls8.py examples/call.ls8`, you should see the output:
 
 ```
 20
 30
 36
 60
+```
+
+## Sprint Challenge
+
+If you run `python3 ls8.py examples/sctest.ls8`, you should see the output:
+
+```
+1
+4
+5
 ```
 
 ## Stretch Goal: Timer Interrupts
